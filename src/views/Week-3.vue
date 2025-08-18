@@ -53,6 +53,7 @@ const data = [
 const productList = ref(data)
 const cartList = ref([])
 const orderList = ref([])
+const remark = ref('')
 
 const addProduct = (product) => {
   const cartItem = cartList.value.find((i) => i.id === product.id)
@@ -66,19 +67,25 @@ const addProduct = (product) => {
   }
 }
 
-const cartItemTotal = (item) => {
-  return item.price * item.qty
-}
+const cartItemTotal = computed(() => {
+  return cartList.value.reduce((prev, item) => prev + item.price * item.qty, 0)
+});
 
 const removeProduct = (item) => {
   cartList.value = cartList.value.filter((i) => i.id !== item.id)
 }
 
 const addOrder = () => {
-  orderList.value.push({
-    ...cartList,
-  })
-  console.log(orderList.value)
+  orderList.value={
+    id:new Date().getTime(),
+    cart:cartList.value,
+    remark:remark.value,
+    total:cartItemTotal.value
+  }
+  remark.value=''
+  cartList.value=[]
+  console.log(orderList);
+  
 }
 </script>
 
@@ -129,14 +136,14 @@ const addOrder = () => {
                   </select>
                 </td>
                 <td>{{ item.price }}</td>
-                <td>{{ cartItemTotal(item) }}</td>
+                <td>{{ item.price * item.qty }}</td>
               </tr>
             </tbody>
           </table>
           <div class="text-end mb-3">
-            <h5>總計: <span>$ {{}}</span></h5>
+            <h5>總計: <span>$ {{cartItemTotal}}</span></h5>
           </div>
-          <textarea class="form-control mb-3" rows="3" placeholder="備註"></textarea>
+          <textarea class="form-control mb-3" rows="3" placeholder="備註" v-model="remark"></textarea>
           <div class="text-end">
             <button class="btn btn-primary" @click="addOrder()">送出</button>
           </div>
@@ -160,22 +167,12 @@ const addOrder = () => {
                   <tbody>
                     <tr v-for="order in orderList" :key="order">
                       <td>{{ order.name }}</td>
-                      <td>7</td>
-                      <td>385</td>
-                    </tr>
-                    <tr>
-                      <td>冬瓜檸檬</td>
-                      <td>7</td>
-                      <td>315</td>
-                    </tr>
-                    <tr>
-                      <td>冬瓜檸檬</td>
-                      <td>4</td>
-                      <td>180</td>
+                      <td>{{ cartList.value }}</td>
+                      <td>{{ cartItemTotal }}</td>
                     </tr>
                   </tbody>
                 </table>
-                <div class="text-end">備註: <span>都不要香菜</span></div>
+                <div class="text-end">備註: <span>{{ remark }}</span></div>
                 <div class="text-end">
                   <h5>總計: <span>$145</span></h5>
                 </div>
