@@ -58,6 +58,7 @@ const productList = ref(data)
 const cartList = ref([])
 const orderList = ref([])
 const remark = ref('')
+const isOrdering = ref(false)
 
 const addProduct = (product) => {
   const cartItem = cartList.value.find((i) => i.id === product.id)
@@ -69,6 +70,7 @@ const addProduct = (product) => {
       qty: 1,
     })
   }
+  isOrdering.value = true
 }
 
 const cartItemTotal = computed(() => {
@@ -77,6 +79,7 @@ const cartItemTotal = computed(() => {
 
 const removeProduct = (item) => {
   cartList.value = cartList.value.filter((i) => i.id !== item.id)
+  isOrdering.value = false
 }
 
 const addOrder = () => {
@@ -88,6 +91,7 @@ const addOrder = () => {
   }
   remark.value = ''
   cartList.value = []
+  isOrdering.value = false
 }
 </script>
 
@@ -112,20 +116,23 @@ const addOrder = () => {
             </thead>
             <CartList :cartList="cartList" :removeProduct="removeProduct" />
           </table>
-          <div class="text-end mb-3">
-            <h5>
-              總計: <span>$ {{ cartItemTotal }}</span>
-            </h5>
+          <div v-if="isOrdering">
+            <div class="text-end mb-3" >
+              <h5>
+                總計: <span>$ {{ cartItemTotal }}</span>
+              </h5>
+            </div>
+            <textarea
+              class="form-control mb-3"
+              rows="3"
+              placeholder="備註"
+              v-model="remark"
+            ></textarea>
+            <div class="text-end">
+              <button class="btn btn-primary" @click="addOrder()">送出</button>
+            </div>
           </div>
-          <textarea
-            class="form-control mb-3"
-            rows="3"
-            placeholder="備註"
-            v-model="remark"
-          ></textarea>
-          <div class="text-end">
-            <button class="btn btn-primary" @click="addOrder()">送出</button>
-          </div>
+          <h2 class="bg-success rounded-2 py-4 text-center text-white opacity-75" v-else>尚無選購商品</h2>
         </div>
       </div>
       <hr />
